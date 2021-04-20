@@ -1,6 +1,10 @@
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
+const session = require('express-session') // adds capability for a session object to be added to req??
+
+const usersRouter = require('./users/users-router')
+const authRouter = require('./auth/auth-router')
 
 
 
@@ -22,6 +26,24 @@ const server = express();
 server.use(helmet());
 server.use(express.json());
 server.use(cors());
+
+server.use(
+  session({
+    name: 'boopSession',
+    secret: 'secret',
+    cookie:{
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+        secure: false, //true in production
+        httpOnly: true,
+    },
+    httpOnly: true,
+    resave:false,
+    saveUninitialized: false,
+  })
+)
+
+server.use('/api/users', usersRouter)
+server.use('/api/auth', authRouter)
 
 server.get("/", (req, res) => {
   res.json({ api: "up" });
